@@ -4,6 +4,8 @@
 		return
 	return G.active
 
+GLOBAL_DATUM(active_celestial_gateway, obj/structure/destructible/clockwork/massive/celestial_gateway)
+
 //The gateway to Reebe, from which Ratvar emerges.
 /obj/structure/destructible/clockwork/massive/celestial_gateway
 	name = "\improper Ark of the Clockwork Justicar"
@@ -45,6 +47,10 @@
 		if(alert(user, "Are you sure you want to activate the ark? Once enabled, there will be no turning back.", "Enabling the ark", "Activate!", "Cancel") == "Activate!")
 			if(active)
 				return
+			if(GLOB.active_celestial_gateway != src)
+				to_chat(user, "<span class='warning'>There is already a gateway active.</span>")
+				return
+			GLOB.active_celestial_gateway = src
 			log_game("[key_name(user)] has activated an Ark of the Clockwork Justicar at [COORD(src)].")
 			START_PROCESSING(SSprocessing, src)
 			SSshuttle.registerHostileEnvironment(src)
@@ -151,6 +157,8 @@
 
 obj/structure/destructible/clockwork/massive/celestial_gateway/Destroy()
 	STOP_PROCESSING(SSprocessing, src)
+	if(GLOB.active_celestial_gateway == src)
+		GLOB.active_celestial_gateway = null
 	if(!purpose_fulfilled)
 		var/area/gate_area = get_area(src)
 		hierophant_message("<span class='large_brass'><b>An Ark of the Clockwork Justicar has fallen at [gate_area.map_name]!</b></span>")
